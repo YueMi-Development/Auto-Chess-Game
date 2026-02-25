@@ -1,0 +1,12 @@
+[submodule "Game-Client"]
+	path = Frontend/Game-Client
+	url = https://git.yuemi.my.id/Auto-Chess/Game-Client.git
+[submodule "Backend-Simulation"]
+	path = Backend/Backend-Simulation
+	url = https://git.yuemi.my.id/Auto-Chess/Backend-Simulation.git
+[submodule "Backend-General"]
+	path = Backend/Backend-General
+	url = https://git.yuemi.my.id/Auto-Chess/Backend-General.git
+[submodule "Game-Website"]
+	path = Frontend/Game-Website
+	url = https://git.yuemi.my.id/Auto-Chess/Game-Website.git
