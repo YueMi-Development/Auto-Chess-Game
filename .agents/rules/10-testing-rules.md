@@ -12,7 +12,7 @@ trigger: always_on
 
 ## Test Naming
 - Describe intent, not implementation.
-- Example: testCalculateTotal_withNegativeInput_returnsZero
+- Example: `test_calculate_total_with_negative_input_returns_zero`
 
 ## Test Quality
 - Avoid fragile tests that break on minor changes.
@@ -27,3 +27,20 @@ trigger: always_on
 - Code should be **designed for testability**.
 - Avoid hard-to-mock static/global dependencies.
 - Separate side-effects from logic.
+
+## Rust
+```bash
+cargo test
+cargo test -- --nocapture   # show print output
+cargo test <name> -v       # single test
+```
+
+## Laravel (PHP)
+```bash
+php artisan test            # all tests
+php artisan test --filter=ClassName
+```
+
+## Godot
+- Write unit tests as GDScript scripts under `tests/` directory.
+- Use Godot's built-in test runner: `godot --headless --test`

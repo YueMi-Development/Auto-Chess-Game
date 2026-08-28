@@ -1,0 +1,137 @@
+{
+  "version": 1,
+  "skills": {
+    "anti-reversing-techniques": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/reverse-engineering/skills/anti-reversing-techniques/SKILL.md",
+      "computedHash": "34479bae98ffd79698325ed1a2c4cb0171ad32bb659eb7691acb2b48b2441e0f"
+    },
+    "api-design-principles": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/backend-development/skills/api-design-principles/SKILL.md",
+      "computedHash": "a91429c25bb978f99f5da8d8752b8ae87ece51abcb24acb3953a5b1662c9bd5c"
+    },
+    "caveman-commit": {
+      "source": "juliusbrussee/caveman",
+      "sourceType": "github",
+      "skillPath": "skills/caveman-commit/SKILL.md",
+      "computedHash": "1dd642480aee47934d6c202fd471e41922c7dc312e92a6e38059442b39bb0795"
+    },
+    "commit-work": {
+      "source": "softaworks/agent-toolkit",
+      "sourceType": "github",
+      "skillPath": "skills/commit-work/SKILL.md",
+      "computedHash": "c9362cbf8d20af2fba1789a57c27e94cf063c0cbe659f40898d31d2afa3b1cb8"
+    },
+    "debugging-strategies": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/developer-essentials/skills/debugging-strategies/SKILL.md",
+      "computedHash": "d7d8542d2205ebdb547d14dab24f467e334f73cfb30c4458888f5431713ca82d"
+    },
+    "dependabot": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/dependabot/SKILL.md",
+      "computedHash": "4a661150300bc3732c12cd23fd18e034cccbc80f1715e0baf48ffaa2b3fb2f6e"
+    },
+    "dependency-updater": {
+      "source": "softaworks/agent-toolkit",
+      "sourceType": "github",
+      "skillPath": "skills/dependency-updater/SKILL.md",
+      "computedHash": "3fc648ed28dfce104c7749318489af2c388de99dde2d85c145a4e028d994db41"
+    },
+    "docker-development": {
+      "source": "alirezarezvani/claude-skills",
+      "sourceType": "github",
+      "skillPath": "engineering/docker-development/skills/docker-development/SKILL.md",
+      "computedHash": "1348ef1038327f51eb47b370a3da2a5e574f9a1097616f3d1bfa66570ad9a7e4"
+    },
+    "docker-expert": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/docker-expert/SKILL.md",
+      "computedHash": "7be30b1c18b91628dcd8437a89e7e20acce76bae4349533e4ebdeb376a660bcb"
+    },
+    "multi-stage-dockerfile": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/multi-stage-dockerfile/SKILL.md",
+      "computedHash": "698bf93a84dae18fd7bd0b1d35c21427307fde78fbdf4624be9726f5f98189ca"
+    },
+    "rust-async-patterns": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/systems-programming/skills/rust-async-patterns/SKILL.md",
+      "computedHash": "20d32ef58158c94eb4dfc4aaf19bec7ae2a025ae5d42da7b49ccfbaeda389273"
+    },
+    "rust-best-practices": {
+      "source": "apollographql/skills",
+      "sourceType": "github",
+      "skillPath": "skills/rust-best-practices/SKILL.md",
+      "computedHash": "0ac6606adb27e64a31bdc8c1ed34e446ae0c14bff1c7648867c46e106adc048f"
+    },
+    "rust-call-graph": {
+      "source": "actionbook/rust-skills",
+      "sourceType": "github",
+      "skillPath": "skills/rust-call-graph/SKILL.md",
+      "computedHash": "0999fbe783c81b87ba1dc1347758bd87b5880dca0d66c69be53bbac133a4c888"
+    },
+    "rust-deps-visualizer": {
+      "source": "actionbook/rust-skills",
+      "sourceType": "github",
+      "skillPath": "skills/rust-deps-visualizer/SKILL.md",
+      "computedHash": "b7cb6cbb693df52c43cae43149469ba44b05ad0747c5826c3d65f5e4b4ad3d74"
+    },
+    "rust-engineer": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "skillPath": "skills/rust-engineer/SKILL.md",
+      "computedHash": "f8093c6253afe24bbac3c3328c3ca07e9ef089758896ba10221ed0f2078cb2a0"
+    },
+    "theme-factory": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/theme-factory/SKILL.md",
+      "computedHash": "e9ec1fe85faa729e9f3d1731cd7e4e485f98c099ccc7c1c0d198f473aa4b654a"
+    },
+    "threat-mitigation-mapping": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/security-scanning/skills/threat-mitigation-mapping/SKILL.md",
+      "computedHash": "7c9f3ffecaf0443ab862ac55834cfedde4d3a549c81ad775c23528be54384454"
+    },
+    "ui-ux-pro-max": {
+      "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/ui-ux-pro-max/SKILL.md",
+      "computedHash": "1d70f4e82bae766934977ea6fb32623358e2ecb562926f7d2cd8ca6c31024cc5"
+    },
+    "unity": {
+      "source": "mindrally/skills",
+      "sourceType": "github",
+      "skillPath": "unity/SKILL.md",
+      "computedHash": "55ab9fb1d0809ef1d0fd3d70258195e7eb28a67e1c84543cf3cba6325033ad87"
+    },
+    "unity-developer": {
+      "source": "rmyndharis/antigravity-skills",
+      "sourceType": "github",
+      "skillPath": "skills/unity-developer/SKILL.md",
+      "computedHash": "f86726688ba75a631da0b73089c35f89d46dd8bf5c7072ea5c601cadb3d02d25"
+    },
+    "unity-ecs-patterns": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/game-development/skills/unity-ecs-patterns/SKILL.md",
+      "computedHash": "69b09dcd30b88cbb71e5854e05506f8c353a886a15e1ed48ece51d107559cdd8"
+    },
+    "verification-before-completion": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/verification-before-completion/SKILL.md",
+      "computedHash": "b529822bdac4b197b180fe12225cff86b930b65910435103c10622df7f041651"
+    }
+  }
+}

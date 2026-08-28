@@ -1,0 +1,121 @@
+services:
+  # ---------------------------------------------------------------------------
+  # Infrastructure
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-databases.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # ---------------------------------------------------------------------------
+  # Admin Panel (Laravel)
+  # ---------------------------------------------------------------------------
+  admin-panel:
+    build:
+      context: ./Admin-Area/Admin-Panel
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      APP_NAME: "Auto Chess Admin"
+      APP_ENV: production
+      APP_KEY: ${APP_KEY}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: ${ADMIN_DATABASE_NAME:-admin_panel}
+      DB_USERNAME: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./Admin-Area/Admin-Panel:/var/www
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "${ADMIN_PORT:-3001}:80"
+    volumes:
+      - ./Admin-Area/Admin-Panel:/var/www
+      - ./docker/nginx/laravel.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - admin-panel
+
+  # ---------------------------------------------------------------------------
+  # Backend General (Rust)
+  # ---------------------------------------------------------------------------
+  backend-general:
+    build:
+      context: ./Backend/Backend-General
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${GENERAL_HTTP_PORT:-8081}:8081"
+      - "${GENERAL_GRPC_PORT:-50051}:50051"
+    environment:
+      PORT: 8081
+      GRPC_PORT: 50051
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${GENERAL_DATABASE_NAME:-autochess}?sslmode=disable
+      REDIS_URL: redis:6379
+      JWT_SECRET: ${GENERAL_JWT_SECRET}
+      BACKEND_MATCH_URL: http://backend-match:8082
+      CREDS_MANAGER_URL: http://nginx:80
+      CREDS_MANAGER_AUTH_KEY: ${CREDS_MANAGER_AUTH_KEY:-}
+      CREDS_MANAGER_SCOPES: ${CREDS_MANAGER_SCOPES:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------------------
+  # Backend Match / Simulation (Rust)
+  # ---------------------------------------------------------------------------
+  backend-match:
+    build:
+      context: ./Backend/Backend-Simulation
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${MATCH_HTTP_PORT:-8082}:8082"
+    environment:
+      PORT: 8082
+      REDIS_URL: redis:6379
+      BACKEND_GENERAL_GRPC_ADDR: backend-general:50051
+      CREDS_MANAGER_URL: http://nginx:80
+      CREDS_MANAGER_AUTH_KEY: ${CREDS_MANAGER_AUTH_KEY:-}
+      CREDS_MANAGER_SCOPES: ${CREDS_MANAGER_SCOPES:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:

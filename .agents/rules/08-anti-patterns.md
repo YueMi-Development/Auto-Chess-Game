@@ -11,3 +11,6 @@ trigger: always_on
 - Silent failures
 - Over-engineering
 - Copy-paste programming
+- Committed secrets or credentials
+- Internal hostnames/domains in open-source files
+- References to private submodule internals in public root docs

@@ -1,12 +1,15 @@
-[submodule "Game-Client"]
+[submodule "Frontend/Game-Client"]
 	path = Frontend/Game-Client
-	url = https://git.yuemi.my.id/Auto-Chess/Game-Client.git
-[submodule "Backend-Simulation"]
+	url = https://github.com/YueMi-Development/Auto-Chess-Game-Client-v2.git
+[submodule "Backend/Backend-Simulation"]
 	path = Backend/Backend-Simulation
-	url = https://git.yuemi.my.id/Auto-Chess/Backend-Simulation.git
-[submodule "Backend-General"]
+	url = https://github.com/YueMi-Development/Auto-Chess-Backend-Simulation.git
+[submodule "Backend/Backend-General"]
 	path = Backend/Backend-General
-	url = https://git.yuemi.my.id/Auto-Chess/Backend-General.git
-[submodule "Game-Website"]
+	url = https://github.com/YueMi-Development/Auto-Chess-Backend-General.git
+[submodule "Frontend/Game-Website"]
 	path = Frontend/Game-Website
-	url = https://git.yuemi.my.id/Auto-Chess/Game-Website.git
+	url = https://github.com/YueMi-Development/Auto-Chess-Website-Client.git
+[submodule "Admin-Area/Admin-Panel"]
+	path = Admin-Area/Admin-Panel
+	url = https://github.com/YueMi-Development/Auto-Chess-Admin-Panel.git

@@ -1,0 +1,3 @@
+# Shared Cargo build cache — one target/ dir for the whole monorepo.
+[build]
+target-dir = "target/rust"

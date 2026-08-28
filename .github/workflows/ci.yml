@@ -1,0 +1,152 @@
+name: CI
+
+on:
+  pull_request:
+    branches: ["master", "development"]
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Tag info: extract tag name for release jobs ───────────────────────────
+  tag-info:
+    name: Tag Info
+    runs-on: ubuntu-22.04
+    # Only runs on tags; outputs empty string otherwise
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+      is_release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    steps:
+      - name: Extract tag name
+        id: tag
+        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+  # ── Release: create GitHub Release ────────────────────────────────────────
+  release:
+    name: Create Release
+    runs-on: ubuntu-22.04
+    needs: [tag-info]
+    if: needs.tag-info.outputs.is_release == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Extract changelog section
+        id: changelog
+        run: |
+          python3 .github/scripts/get_changelog.py "${{ needs.tag-info.outputs.tag }}" > changelog_body.txt
+          {
+            echo "body<<EOF"
+            cat changelog_body.txt
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.tag-info.outputs.tag }}
+          body: ${{ steps.changelog.outputs.body }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── Rust Backends ──────────────────────────────────────────────────────────
+  backend-general:
+    name: Backend-General (test + build)
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: Backend/Backend-General
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Setup Rust 1.85
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: "1.85"
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run tests
+        run: cargo test
+
+      - name: Build release
+        run: cargo build --release
+
+  backend-simulation:
+    name: Backend-Simulation (test + build)
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: Backend/Backend-Simulation
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Setup Rust 1.85
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: "1.85"
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run tests
+        run: cargo test
+
+      - name: Build release
+        run: cargo build --release
+
+  # ── Godot Game Client ─────────────────────────────────────────────────────
+  godot-export:
+    name: Godot Export
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.4
+    needs: [tag-info]
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [linux, windows]
+        include:
+          - platform: linux
+            asset_name: AutoChess-Game-Client-linux-x86_64
+          - platform: windows
+            asset_name: AutoChess-Game-Client-windows.exe
+    defaults:
+      run:
+        working-directory: Frontend/Game-Client
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Build ${{ matrix.platform }}
+        uses: barichello/godot-ci-action@v2
+        with:
+          preset: ${{ matrix.platform }}
+          arch: ${{ matrix.platform == 'linux' && 'x86_64' || 'win64' }}
+
+      - name: Upload to GitHub Release
+        if: needs.tag-info.outputs.is_release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.tag-info.outputs.tag }}
+          files: Frontend/Game-Client/build/*${{ matrix.platform == 'linux' && 'linux' || 'windows' }}*
+          asset_name: ${{ matrix.asset_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

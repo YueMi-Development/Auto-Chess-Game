@@ -1,0 +1,40 @@
+// Backend-General proto source. The match_service proto is shared
+// with Backend-Simulation. tonic-build regeneration is wired in via
+// build.rs. Repo: forgejo.autochess.local/autochess/backend-general
+
+syntax = "proto3";
+
+package autochess.MatchNotification.v1;
+
+message AckResponse {
+  bool   ok      = 1;
+  string message = 2;
+}
+
+message PlayerEliminatedRequest {
+  string match_id  = 1;
+  string player_id = 2;
+  int32  placement = 3;
+}
+
+message PlayerWonRequest {
+  string match_id  = 1;
+  string player_id = 2;
+}
+
+message MatchFinishedRequest {
+  string            match_id      = 1;
+  repeated Placement placements   = 2;
+  int32             rounds_played = 3;
+}
+
+message Placement {
+  string player_id = 1;
+  int32  placement = 2;
+}
+
+service MatchNotification {
+  rpc PlayerEliminated(PlayerEliminatedRequest) returns (AckResponse);
+  rpc PlayerWon       (PlayerWonRequest)        returns (AckResponse);
+  rpc MatchFinished   (MatchFinishedRequest)    returns (AckResponse);
+}
