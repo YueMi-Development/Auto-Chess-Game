@@ -1,4 +1,4 @@
-# Game-Client — Product Requirements Document (PRD)
+now # Game-Client — Product Requirements Document (PRD)
 
 > **Stack:** Godot 4.x (GDScript) — mobile-friendly canvas
 > **Status:** Pending · **Date:** 2026-08-27
