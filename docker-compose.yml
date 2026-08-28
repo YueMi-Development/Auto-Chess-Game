@@ -51,6 +51,7 @@ services:
       DB_DATABASE: ${ADMIN_DATABASE_NAME:-admin_panel}
       DB_USERNAME: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
+      BACKEND_GENERAL_URL: ${BACKEND_GENERAL_URL:-http://backend-general:8081}
     volumes:
       - ./Admin-Area/Admin-Panel:/var/www
     depends_on:
