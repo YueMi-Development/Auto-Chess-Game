@@ -146,7 +146,7 @@ jobs:
       - name: Export ${{ matrix.platform }}
         run: |
           mkdir -v build
-          godot --headless --export-release "${{ matrix.platform == 'windows' && 'Windows' || 'Linux' }}"
+          godot --headless --export-release "${{ matrix.platform == 'windows' && 'Windows Desktop' || 'Linux/X11' }}"
 
       - name: Copy to release name
         run: |
