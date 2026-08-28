@@ -8,6 +8,9 @@ target/
 .claude/worktrees
 .claude/settings*.json
 
+# IDE Config
+.vscode/
+
 # Graphify
 /graphify-out/
 /graphify-out/**/cache/
