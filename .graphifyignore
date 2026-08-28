@@ -1,0 +1,51 @@
+# === Monorepo-wide ignores ===
+
+# Agent/tool metadata
+.agents/
+.claude/
+
+# Build artifacts
+target/
+node_modules/
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# === Submodule-specific ignores ===
+
+# Godot (Game-Client)
+.godot/
+
+# Laravel (Admin-Panel)
+storage/
+bootstrap/cache/
+vendor/
+node_modules/
+.env
+.env.*
+!.env.example
+
+# Docker / environment
+docker-compose*.yml
+docker-compose*.yaml
+.env
+.env.*
+!.env.example
+
+# Documentation (usually not code)
+Documentation/
+*.md
+!README.md
+!AGENTS.md
+!CLAUDE.md
+
+# Graphify outputs (don't re-index own outputs)
+graphify-out/
