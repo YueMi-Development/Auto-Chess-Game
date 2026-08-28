@@ -82,6 +82,7 @@ services:
     environment:
       PORT: 8081
       GRPC_PORT: 50051
+      HTTP_ADDR: 0.0.0.0:8081
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${GENERAL_DATABASE_NAME:-autochess}?sslmode=disable
       REDIS_URL: redis://redis:6379
       JWT_SECRET: ${GENERAL_JWT_SECRET}
@@ -107,6 +108,7 @@ services:
       - "${MATCH_HTTP_PORT:-8082}:8082"
     environment:
       PORT: 8082
+      HTTP_ADDR: 0.0.0.0:8082
       REDIS_URL: redis://redis:6379
       BACKEND_GENERAL_GRPC_ADDR: backend-general:50051
       CREDS_MANAGER_URL: http://nginx:80
