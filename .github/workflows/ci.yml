@@ -70,6 +70,9 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           submodules: recursive
 
+      - name: Install protoc
+        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
+
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@v1
         with:
@@ -96,6 +99,9 @@ jobs:
         with:
           token: ${{ secrets.GH_PAT }}
           submodules: recursive
+
+      - name: Install protoc
+        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@v1
