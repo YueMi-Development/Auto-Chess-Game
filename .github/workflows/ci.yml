@@ -122,7 +122,7 @@ jobs:
     name: Godot Export (${{ matrix.platform }})
     runs-on: ubuntu-24.04
     container:
-      image: barichello/godot-ci:4.4
+      image: barichello/godot-ci:4.7
     needs: [tag-info]
     strategy:
       fail-fast: false
@@ -142,25 +142,22 @@ jobs:
       - name: Setup export templates
         run: |
           mkdir -v -p ~/.local/share/godot/export_templates/
-          mv /root/.local/share/godot/export_templates/4.4.stable ~/.local/share/godot/export_templates/4.4.stable
+          mv /root/.local/share/godot/export_templates/4.7.stable ~/.local/share/godot/export_templates/4.7.stable
 
       - name: Build ${{ matrix.platform }}
         run: |
           mkdir -v -p build/${{ matrix.platform }}
-          godot --headless --export-release "${{ matrix.platform == 'windows' && 'Windows Desktop' || matrix.platform == 'linux' && 'Linux/X11' || 'Android' }}" "build/${{ matrix.platform }}/output"
+          godot --headless --export-release "${{ matrix.platform == 'windows' && 'Windows' || matrix.platform == 'linux' && 'Linux' || 'Android' }}" "build/${{ matrix.platform }}"
 
-      - name: Rename output
+      - name: Copy to release name
         run: |
           cd build/${{ matrix.platform }}
           if [ "${{ matrix.platform }}" == "linux" ]; then
-            FILENAME=$(find . -type f -executable ! -name "*.so" ! -path "./godot*" | head -1)
-            [ -n "$FILENAME" ] && mv "$FILENAME" "../../AutoChess-Game-Client-linux-x86_64"
+            cp game-client-linux.x86_64 "../../AutoChess-Game-Client-linux-x86_64"
           elif [ "${{ matrix.platform }}" == "windows" ]; then
-            FILENAME=$(find . -name "*.exe" ! -path "./godot*" | head -1)
-            [ -n "$FILENAME" ] && mv "$FILENAME" "../../AutoChess-Game-Client-windows.exe"
+            cp game-client-windows.exe "../../AutoChess-Game-Client-windows.exe"
           else
-            FILENAME=$(find . -name "*.apk" | head -1)
-            [ -n "$FILENAME" ] && mv "$FILENAME" "../../AutoChess-Game-Client-android.apk"
+            cp AutoChess-Game-Client-android.apk "../../AutoChess-Game-Client-android.apk"
           fi
 
       - name: Upload to GitHub Release
