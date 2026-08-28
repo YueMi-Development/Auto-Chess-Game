@@ -12,10 +12,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/godot-android-ci
-
 jobs:
   # ── Tag info ────────────────────────────────────────────────────────────────
   tag-info:
@@ -121,48 +117,6 @@ jobs:
       - name: Build release
         run: cargo build --release
 
-  # ── Build Godot Android Docker image ───────────────────────────────────────
-  godot-android-docker:
-    name: Build Godot Android Docker Image
-    runs-on: ubuntu-24.04
-    outputs:
-      image: ${{ steps.meta.outputs.tags }}
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_PAT }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: type=sha,prefix=
-
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          context: docker
-          file: docker/Dockerfile.godot-android
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
   # ── Godot PC exports (Linux, Windows) ──────────────────────────────────────
   godot-pc:
     name: Godot Export (${{ matrix.platform }})
@@ -220,8 +174,8 @@ jobs:
     name: Godot Export (Android)
     runs-on: ubuntu-24.04
     container:
-      image: ${{ needs.godot-android-docker.outputs.image }}
-    needs: [tag-info, godot-android-docker]
+      image: ghcr.io/${{ github.repository_owner }}/godot-android-ci:${{ github.sha }}
+    needs: [tag-info]
     defaults:
       run:
         working-directory: Frontend/Game-Client
