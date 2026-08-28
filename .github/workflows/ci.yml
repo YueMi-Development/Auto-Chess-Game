@@ -177,9 +177,9 @@ jobs:
         run: |
           $godotDir = "$env:LOCALAPPDATA\Godot"
           New-Item -ItemType Directory -Force -Path $godotDir
-          Invoke-WebRequest -Uri "https://github.com/godotengine/godot/releases/download/4.7-stable/Godot_v4.7-stable_win64_console.zip" -OutFile "$godotDir\godot.zip"
-          Expand-Archive "$godotDir\godot.zip" -DestinationPath $godotDir -Force
-          Remove-Item "$godotDir\godot.zip"
+          Invoke-WebRequest -Uri "https://github.com/godotengine/godot-builds/releases/download/4.7-stable/Godot_v4.7-stable_win64_console.exe" -OutFile "$godotDir\godot.exe"
+          Expand-Archive "$godotDir\godot.exe" -DestinationPath $godotDir -Force
+          Remove-Item "$godotDir\godot.exe"
 
       - name: Export Windows
         shell: pwsh
