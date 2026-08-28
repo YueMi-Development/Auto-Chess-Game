@@ -34,3 +34,14 @@ RUN yes | sdkmanager --licenses > /dev/null 2>&1 || true && \
     "platforms;android-34" \
     "build-tools;34.0.0" \
     "platform-tools"
+
+# Download and install Godot export templates (including Android)
+ARG GODOT_VERSION=4.7-stable
+ENV GODOT_VERSION=$GODOT_VERSION
+
+RUN mkdir -p ~/.local/share/godot/export_templates/$GODOT_VERSION && \
+    wget -q https://github.com/godotengine/godot/releases/download/$GODOT_VERSION/Godot_v$GODOT_VERSION-export_templates.tpz -O /tmp/templates.tpz && \
+    cd ~/.local/share/godot/export_templates/$GODOT_VERSION && \
+    unzip -q /tmp/templates.tpz && \
+    mv templates/* . && \
+    rm -rf templates /tmp/templates.tpz
