@@ -151,7 +151,7 @@ jobs:
       - name: Copy to release name
         run: |
           cd build
-          if [ "${{ matrix.platform }}" == "linux" ]; then
+          if [ "${{ matrix.platform }}" = "linux" ]; then
             cp game-client-linux.x86_64 "../AutoChess-Game-Client-linux-x86_64"
           else
             cp game-client-windows.exe "../AutoChess-Game-Client-windows.exe"
