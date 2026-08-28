@@ -173,7 +173,7 @@ jobs:
     name: Godot Export (Android)
     runs-on: ubuntu-24.04
     container:
-      image: ghcr.io/${{ github.repository_owner }}/godot-android-ci:${{ github.sha }}
+      image: ghcr.io/yuemi-development/godot-android
     needs: [tag-info]
     defaults:
       run:
