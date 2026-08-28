@@ -68,4 +68,6 @@ Backend-Simulation: http://localhost:8082
 
 ## License
 
-Proprietary. See [LICENSE](LICENSE).
+Root repository documentation and PRDs: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). See [LICENSE](LICENSE).
+
+All submodules are **proprietary and private**. They are not covered by CC BY 4.0 and may not be used without written permission.
