@@ -116,17 +116,13 @@ jobs:
       - name: Build release
         run: cargo build --release
 
-  # ── Godot PC exports (Linux, Windows) ──────────────────────────────────────
-  godot-pc:
-    name: Godot Export (${{ matrix.platform }})
+  # ── Godot Linux export ─────────────────────────────────────────────────────
+  godot-linux:
+    name: Godot Export (Linux)
     runs-on: ubuntu-24.04
     container:
       image: barichello/godot-ci:4.7
     needs: [tag-info]
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [linux, windows]
     defaults:
       run:
         working-directory: Frontend/Game-Client
@@ -143,19 +139,15 @@ jobs:
           mkdir -v -p ~/.local/share/godot/export_templates/
           mv /root/.local/share/godot/export_templates/4.7.stable ~/.local/share/godot/export_templates/4.7.stable
 
-      - name: Export ${{ matrix.platform }}
+      - name: Export Linux
         run: |
           mkdir -v build
-          godot --headless --export-release "${{ matrix.platform == 'windows' && 'Windows Desktop' || 'Linux/X11' }}"
+          godot --headless --export-release "Linux"
 
       - name: Copy to release name
         run: |
           cd build
-          if [ "${{ matrix.platform }}" = "linux" ]; then
-            cp game-client-linux.x86_64 "../AutoChess-Game-Client-linux-x86_64"
-          else
-            cp game-client-windows.exe "../AutoChess-Game-Client-windows.exe"
-          fi
+          cp game-client-linux.x86_64 "../AutoChess-Game-Client-linux-x86_64"
 
       - name: Upload to GitHub Release
         if: needs.tag-info.outputs.is_release == 'true'
@@ -164,7 +156,46 @@ jobs:
           tag_name: ${{ needs.tag-info.outputs.tag }}
           files: |
             Frontend/Game-Client/AutoChess-Game-Client-linux-x86_64
-            Frontend/Game-Client/AutoChess-Game-Client-windows.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── Godot Windows export ───────────────────────────────────────────────────
+  godot-windows:
+    name: Godot Export (Windows)
+    runs-on: windows-latest
+    needs: [tag-info]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          token: ${{ secrets.GH_PAT }}
+          submodules: recursive
+
+      - name: Download Godot
+        shell: pwsh
+        run: |
+          $godotDir = "$env:LOCALAPPDATA\Godot"
+          New-Item -ItemType Directory -Force -Path $godotDir
+          Invoke-WebRequest -Uri "https://github.com/godotengine/godot/releases/download/4.7.stable/Godot_v4.7.stable_win64_console.zip" -OutFile "$godotDir\godot.zip"
+          Expand-Archive "$godotDir\godot.zip" -DestinationPath $godotDir -Force
+          Remove-Item "$godotDir\godot.zip"
+
+      - name: Export Windows
+        shell: pwsh
+        run: |
+          $godot = Get-ChildItem "$env:LOCALAPPDATA\Godot\*.exe" | Select-Object -First 1
+          New-Item -ItemType Directory -Force -Path "Frontend\Game-Client\build"
+          Set-Location "Frontend\Game-Client"
+          & $godot.FullName --headless --export-release "Windows Desktop" "build\game-client-windows.exe"
+
+      - name: Upload to GitHub Release
+        if: needs.tag-info.outputs.is_release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.tag-info.outputs.tag }}
+          files: |
+            Frontend/Game-Client/build/game-client-windows.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -185,11 +216,6 @@ jobs:
           lfs: true
           token: ${{ secrets.GH_PAT }}
           submodules: recursive
-
-      - name: Setup export templates
-        run: |
-          mkdir -v -p ~/.local/share/godot/export_templates/
-          mv /root/.local/share/godot/export_templates/4.7.stable ~/.local/share/godot/export_templates/4.7.stable
 
       - name: Export Android
         run: |
