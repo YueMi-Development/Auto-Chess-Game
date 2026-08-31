@@ -25,6 +25,37 @@ jobs:
         id: tag
         run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
+  # ── Commit Skip Parser ──────────────────────────────────────────────────────
+  parser:
+    name: Commit Skip Parser
+    runs-on: ubuntu-22.04
+    outputs:
+      skip_backend: ${{ steps.parse.outputs.skip_backend }}
+      skip_general: ${{ steps.parse.outputs.skip_general }}
+      skip_simulation: ${{ steps.parse.outputs.skip_simulation }}
+      skip_admin_grpc: ${{ steps.parse.outputs.skip_admin_grpc }}
+      skip_matchmaking: ${{ steps.parse.outputs.skip_matchmaking }}
+      skip_matchgames: ${{ steps.parse.outputs.skip_matchgames }}
+      skip_godot: ${{ steps.parse.outputs.skip_godot }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Collect commits
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "${{ github.event.pull_request.title }}" > commits.txt
+            git log ${{ github.event.pull_request.base.sha }}..HEAD --format=%B >> commits.txt
+          else
+            git log --format=%B -n 50 > commits.txt
+          fi
+
+      - name: Parse skip flags
+        id: parse
+        run: python3 .github/scripts/parse_commit_skip.py "$(cat commits.txt)"
+
   # ── Release: create GitHub Release ────────────────────────────────────────
   release:
     name: Create Release
@@ -59,6 +90,8 @@ jobs:
   backend-general:
     name: Backend-General (test + build)
     runs-on: ubuntu-22.04
+    needs: [parser]
+    if: needs.parser.outputs.skip_backend != 'true' && needs.parser.outputs.skip_general != 'true'
     defaults:
       run:
         working-directory: Backend/Backend-General
@@ -89,6 +122,8 @@ jobs:
   backend-simulation:
     name: Backend-Simulation (test + build)
     runs-on: ubuntu-22.04
+    needs: [parser]
+    if: needs.parser.outputs.skip_backend != 'true' && needs.parser.outputs.skip_simulation != 'true'
     defaults:
       run:
         working-directory: Backend/Backend-Simulation
@@ -119,6 +154,8 @@ jobs:
   backend-admin-grpc:
     name: Backend-AdminGrpc (build)
     runs-on: ubuntu-22.04
+    needs: [parser]
+    if: needs.parser.outputs.skip_backend != 'true' && needs.parser.outputs.skip_admin_grpc != 'true'
     defaults:
       run:
         working-directory: Backend/Backend-AdminGrpc
@@ -146,6 +183,8 @@ jobs:
   backend-matchmaking:
     name: Backend-Matchmaking (build)
     runs-on: ubuntu-22.04
+    needs: [parser]
+    if: needs.parser.outputs.skip_backend != 'true' && needs.parser.outputs.skip_matchmaking != 'true'
     defaults:
       run:
         working-directory: Backend/Backend-Matchmaking
@@ -173,6 +212,8 @@ jobs:
   backend-matchgames:
     name: Backend-MatchGames (build)
     runs-on: ubuntu-22.04
+    needs: [parser]
+    if: needs.parser.outputs.skip_backend != 'true' && needs.parser.outputs.skip_matchgames != 'true'
     defaults:
       run:
         working-directory: Backend/Backend-MatchGames
@@ -203,7 +244,8 @@ jobs:
     runs-on: ubuntu-24.04
     container:
       image: barichello/godot-ci:4.7
-    needs: [tag-info]
+    needs: [parser, tag-info]
+    if: needs.parser.outputs.skip_godot != 'true'
     defaults:
       run:
         working-directory: Frontend/Game-Client
@@ -244,7 +286,8 @@ jobs:
   godot-windows:
     name: Godot Export (Windows)
     runs-on: windows-latest
-    needs: [tag-info]
+    needs: [parser, tag-info]
+    if: needs.parser.outputs.skip_godot != 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -286,7 +329,8 @@ jobs:
     runs-on: ubuntu-24.04
     container:
       image: ghcr.io/yuemi-development/godot-android
-    needs: [tag-info]
+    needs: [parser, tag-info]
+    if: needs.parser.outputs.skip_godot != 'true'
     defaults:
       run:
         working-directory: Frontend/Game-Client
