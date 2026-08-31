@@ -1,5 +1,5 @@
 syntax = "proto3";
-package autochess.AdminPairing.v1;
+package autochess_admin_pairing_v1;
 
 // AdminPairingService — used by all backend instances to register,
 // send heartbeats, and fetch remote configuration from the Admin Panel

@@ -4,7 +4,7 @@
 
 syntax = "proto3";
 
-package autochess.MatchNotification.v1;
+package autochess_match_notification_v1;
 
 message AckResponse {
   bool   ok      = 1;
