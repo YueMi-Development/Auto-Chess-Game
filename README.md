@@ -106,8 +106,13 @@ Heartbeats run every 30 s. See `Documentation/CREDENTIALS.md` for the full crede
 - [Documentation/CREDENTIALS.md](Documentation/CREDENTIALS.md) - Credential flow between Admin and backends
 - [Documentation/INSTALL.md](Documentation/INSTALL.md) - Full setup guide
 
-## License
+## Open Source & License
 
-Root repository documentation and PRDs: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). See [LICENSE](LICENSE).
+The **root repository** (this repo) is open source under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — see [LICENSE](LICENSE). Its purpose is to document the overall architecture and how the system works, so that others can learn from or reuse the design patterns. It is not a working game or a production deployment.
 
-All submodules are **proprietary and private**. They are not covered by CC BY 4.0 and may not be used without written permission.
+**All submodules are proprietary and private.** They are not covered by CC BY 4.0, may not be copied, forked, or used in any public or commercial project without written permission.
+
+| Scope | License | Public Use |
+|-------|---------|------------|
+| Root repo docs, diagrams, PRDs, architecture | CC BY 4.0 | Allowed with attribution |
+| All submodules (Admin-Panel, backends, clients) | Proprietary / Private | Not allowed |
