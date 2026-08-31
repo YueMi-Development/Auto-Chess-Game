@@ -30,7 +30,6 @@ jobs:
     name: Commit Skip Parser
     runs-on: ubuntu-22.04
     outputs:
-      skip_backend: ${{ steps.parse.outputs.skip_backend }}
       skip_general: ${{ steps.parse.outputs.skip_general }}
       skip_simulation: ${{ steps.parse.outputs.skip_simulation }}
       skip_admin_grpc: ${{ steps.parse.outputs.skip_admin_grpc }}
@@ -91,7 +90,7 @@ jobs:
     name: Backend-General (test + build)
     runs-on: ubuntu-22.04
     needs: [parser]
-    if: needs.parser.outputs.skip_backend != 'true' && needs.parser.outputs.skip_general != 'true'
+    if: needs.parser.outputs.skip_general != 'true'
     defaults:
       run:
         working-directory: Backend/Backend-General
@@ -123,7 +122,7 @@ jobs:
     name: Backend-Simulation (test + build)
     runs-on: ubuntu-22.04
     needs: [parser]
-    if: needs.parser.outputs.skip_backend != 'true' && needs.parser.outputs.skip_simulation != 'true'
+    if: needs.parser.outputs.skip_simulation != 'true'
     defaults:
       run:
         working-directory: Backend/Backend-Simulation
@@ -155,7 +154,7 @@ jobs:
     name: Backend-AdminGrpc (build)
     runs-on: ubuntu-22.04
     needs: [parser]
-    if: needs.parser.outputs.skip_backend != 'true' && needs.parser.outputs.skip_admin_grpc != 'true'
+    if: needs.parser.outputs.skip_admin_grpc != 'true'
     defaults:
       run:
         working-directory: Backend/Backend-AdminGrpc
@@ -184,7 +183,7 @@ jobs:
     name: Backend-Matchmaking (build)
     runs-on: ubuntu-22.04
     needs: [parser]
-    if: needs.parser.outputs.skip_backend != 'true' && needs.parser.outputs.skip_matchmaking != 'true'
+    if: needs.parser.outputs.skip_matchmaking != 'true'
     defaults:
       run:
         working-directory: Backend/Backend-Matchmaking
@@ -213,7 +212,7 @@ jobs:
     name: Backend-MatchGames (build)
     runs-on: ubuntu-22.04
     needs: [parser]
-    if: needs.parser.outputs.skip_backend != 'true' && needs.parser.outputs.skip_matchgames != 'true'
+    if: needs.parser.outputs.skip_matchgames != 'true'
     defaults:
       run:
         working-directory: Backend/Backend-MatchGames
