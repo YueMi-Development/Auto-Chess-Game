@@ -13,3 +13,15 @@
 [submodule "Admin-Area/Admin-Panel"]
 	path = Admin-Area/Admin-Panel
 	url = https://github.com/YueMi-Development/Auto-Chess-Admin-Panel.git
+[submodule "Frontend/Game-Roblox"]
+	path = Frontend/Game-Roblox
+	url = https://github.com/YueMi-Development/Auto-Chess-Game-Client-Roblox.git
+[submodule "Backend/Backend-MatchGames"]
+	path = Backend/Backend-MatchGames
+	url = https://github.com/YueMi-Development/Auto-Chess-Backend-MatchGames.git
+[submodule "Backend/Backend-Matchmaking"]
+	path = Backend/Backend-Matchmaking
+	url = https://github.com/YueMi-Development/Auto-Chess-Backend-Matchmaking.git
+[submodule "Backend/Backend-AdminGrpc"]
+	path = Backend/Backend-AdminGrpc
+	url = https://github.com/YueMi-Development/Auto-Chess-Backend-AdminGrpc.git

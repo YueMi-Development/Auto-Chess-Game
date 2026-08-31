@@ -1,5 +1,15 @@
 services:
   # ---------------------------------------------------------------------------
+  # Shared cargo cache (must be declared before services that use it)
+  # ---------------------------------------------------------------------------
+  cargo_cache:
+    image: alpine:3.19
+    volumes:
+      - cargo_cache:/usr/local/cargo/registry
+      - cargo_cache_target:/app/target
+    entrypoint: ["echo", "cargo_cache volume ready"]
+
+  # ---------------------------------------------------------------------------
   # Infrastructure
   # ---------------------------------------------------------------------------
   postgres:
@@ -31,6 +41,24 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  # ---------------------------------------------------------------------------
+  # Admin gRPC Gateway — thin Rust gRPC service for all backend pairing.
+  # Reads admin_panel DB directly; no Laravel dependency.
+  # ---------------------------------------------------------------------------
+  backend-admin-grpc:
+    build:
+      context: ./Backend/Backend-AdminGrpc
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${ADMIN_GRPC_PORT:-50052}:50052"
+    environment:
+      GRPC_ADDR: 0.0.0.0:50052
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${ADMIN_DATABASE_NAME:-admin_panel}?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   # ---------------------------------------------------------------------------
   # Admin Panel (Laravel)
@@ -70,12 +98,14 @@ services:
       - admin-panel
 
   # ---------------------------------------------------------------------------
-  # Backend General (Rust)
+  # Backend General — Lobby Service (Rust, port 8081 / gRPC 50051)
   # ---------------------------------------------------------------------------
   backend-general:
     build:
       context: ./Backend/Backend-General
       dockerfile: Dockerfile
+      args:
+        CARGO_HOME: /usr/local/cargo
     restart: unless-stopped
     ports:
       - "${GENERAL_HTTP_PORT:-8081}:8081"
@@ -84,13 +114,17 @@ services:
       PORT: 8081
       GRPC_PORT: 50051
       HTTP_ADDR: 0.0.0.0:8081
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${GENERAL_DATABASE_NAME:-autochess}?sslmode=disable
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${ADMIN_DATABASE_NAME:-admin_panel}?sslmode=disable
       REDIS_URL: redis://redis:6379
       JWT_SECRET: ${GENERAL_JWT_SECRET}
-      BACKEND_MATCH_URL: http://backend-match:8082
+      BACKEND_MATCHMAKING_URL: http://backend-matchmaking:8083
+      BACKEND_SIMULATION_URL: http://backend-simulation:8082
       CREDS_MANAGER_URL: http://nginx:80
       CREDS_MANAGER_AUTH_KEY: ${CREDS_MANAGER_AUTH_KEY:-}
       CREDS_MANAGER_SCOPES: ${CREDS_MANAGER_SCOPES:-}
+      ADMIN_GRPC_ADDR: backend-admin-grpc:50052
+    volumes:
+      - cargo_cache:/usr/local/cargo
     depends_on:
       postgres:
         condition: service_healthy
@@ -98,27 +132,77 @@ services:
         condition: service_healthy
 
   # ---------------------------------------------------------------------------
-  # Backend Match / Simulation (Rust)
+  # Backend Matchmaking — Queue Service (Rust, port 8083)
   # ---------------------------------------------------------------------------
-  backend-match:
+  backend-matchmaking:
+    build:
+      context: ./Backend/Backend-Matchmaking
+      dockerfile: ../docker/images/backend-matchmaking.Dockerfile
+      args:
+        CARGO_HOME: /usr/local/cargo
+    restart: unless-stopped
+    ports:
+      - "${MATCHMAKING_PORT:-8083}:8083"
+    environment:
+      REDIS_URL: redis://redis:6379
+      BACKEND_MATCHGAMES_URL: http://backend-matchgames:8084
+      ADMIN_GRPC_ADDR: backend-admin-grpc:50052
+    volumes:
+      - cargo_cache:/usr/local/cargo
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------------------
+  # Backend MatchGames — Match Lifecycle (Rust, port 8084)
+  # ---------------------------------------------------------------------------
+  backend-matchgames:
+    build:
+      context: ./Backend/Backend-MatchGames
+      dockerfile: ../docker/images/backend-matchgames.Dockerfile
+      args:
+        CARGO_HOME: /usr/local/cargo
+    restart: unless-stopped
+    ports:
+      - "${MATCHGAMES_PORT:-8084}:8084"
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${ADMIN_DATABASE_NAME:-admin_panel}?sslmode=disable
+      BACKEND_SIMULATION_URL: http://backend-simulation:8082
+      BACKEND_GENERAL_URL: http://backend-general:8081
+      ADMIN_GRPC_ADDR: backend-admin-grpc:50052
+    volumes:
+      - cargo_cache:/usr/local/cargo
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------------------
+  # Backend Simulation — Combat Engine (Rust, port 8082)
+  # ---------------------------------------------------------------------------
+  backend-simulation:
     build:
       context: ./Backend/Backend-Simulation
       dockerfile: Dockerfile
+      args:
+        CARGO_HOME: /usr/local/cargo
     restart: unless-stopped
     ports:
-      - "${MATCH_HTTP_PORT:-8082}:8082"
+      - "${SIMULATION_PORT:-8082}:8082"
     environment:
-      PORT: 8082
       HTTP_ADDR: 0.0.0.0:8082
-      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${ADMIN_DATABASE_NAME:-admin_panel}?sslmode=disable
       BACKEND_GENERAL_GRPC_ADDR: backend-general:50051
       CREDS_MANAGER_URL: http://nginx:80
       CREDS_MANAGER_AUTH_KEY: ${CREDS_MANAGER_AUTH_KEY:-}
       CREDS_MANAGER_SCOPES: ${CREDS_MANAGER_SCOPES:-}
+      ADMIN_GRPC_ADDR: backend-admin-grpc:50052
+    volumes:
+      - cargo_cache:/usr/local/cargo
     depends_on:
-      redis:
+      postgres:
         condition: service_healthy
 
 volumes:
   postgres_data:
   redis_data:
+  cargo_cache:

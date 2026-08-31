@@ -1,0 +1,72 @@
+syntax = "proto3";
+package autochess.AdminPairing.v1;
+
+// AdminPairingService — used by all backend instances to register,
+// send heartbeats, and fetch remote configuration from the Admin Panel
+// via the Admin gRPC Gateway (Backend-AdminGrpc).
+//
+// This proto lives in Backend/Shared-Files/proto/ and is symlinked
+// into every backend that needs to call the Admin Panel.
+
+service AdminPairingService {
+  // Called once on startup to register this instance and receive a pairing_key.
+  rpc RegisterInstance(RegisterInstanceRequest) returns (RegisterInstanceResponse);
+
+  // Periodic health-check heartbeat (every 30 s).
+  rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse);
+
+  // Fetch named credential groups (e.g. "general,simulation") from the
+  // Admin Panel's project_credentials table.
+  rpc FetchConfig(FetchConfigRequest) returns (FetchConfigResponse);
+}
+
+// ── RegisterInstance ─────────────────────────────────────────────────────────
+
+message RegisterInstanceRequest {
+  // ULID generated once per process lifetime, persisted to instance_id.txt.
+  string instance_id = 1;
+
+  // One of: "general" | "simulation" | "matchmaking" | "matchgames"
+  string service_type = 2;
+
+  string ip = 3;
+  int32 port = 4;
+
+  // gRPC or HTTP base URL this instance exposes (used by Admin Panel for routing).
+  string endpoint = 5;
+}
+
+message RegisterInstanceResponse {
+  bool success = 1;
+  // pairing_key — stored by the backend in pairing.json.
+  string pairing_key = 2;
+  string admin_url = 3;
+  string message = 4;
+}
+
+// ── Heartbeat ─────────────────────────────────────────────────────────────────
+
+message HeartbeatRequest {
+  string instance_id = 1;
+  string pairing_key = 2;
+}
+
+message HeartbeatResponse {
+  bool ok = 1;
+  string message = 2;
+}
+
+// ── FetchConfig ───────────────────────────────────────────────────────────────
+
+message FetchConfigRequest {
+  string instance_id = 1;
+  string pairing_key = 2;
+  // Comma-separated credential group names, e.g. "general,simulation"
+  string scopes = 3;
+}
+
+message FetchConfigResponse {
+  bool success = 1;
+  // Key=value\n lines, one per credential.
+  string config_yaml = 2;
+}
