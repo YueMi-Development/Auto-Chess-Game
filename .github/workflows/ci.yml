@@ -36,6 +36,7 @@ jobs:
       skip_matchmaking: ${{ steps.parse.outputs.skip_matchmaking }}
       skip_matchgames: ${{ steps.parse.outputs.skip_matchgames }}
       skip_godot: ${{ steps.parse.outputs.skip_godot }}
+      skip_roblox: ${{ steps.parse.outputs.skip_roblox }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -369,3 +370,32 @@ jobs:
             Frontend/Game-Client/AutoChess-Game-Client-android.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── Roblox Lua tests + lint ──────────────────────────────────────────────────
+  roblox:
+    name: Game-Roblox (tests + lint)
+    runs-on: ubuntu-22.04
+    needs: [parser]
+    if: needs.parser.outputs.skip_roblox != 'true'
+    defaults:
+      run:
+        working-directory: Frontend/Game-Roblox
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Install lune
+        run: curl -fsSL https://raw.githubusercontent.com/lune-org/lune/master/install.sh | bash
+
+      - name: Run unit tests
+        run: lune run tests/run.lua
+
+      - name: Install luau-analyze
+        run: |
+          curl -fsSL https://github.com/luau-lang/luau/releases/latest/download/luau-linux.zip -o luau.zip
+          unzip -o luau.zip
+
+      - name: Type check
+        run: luau-analyze src/
